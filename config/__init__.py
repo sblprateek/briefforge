@@ -1,0 +1,1 @@
+# BriefForge Configuration Package
