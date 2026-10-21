@@ -338,7 +338,7 @@ else:
         st.subheader("📦 Interactive 3D Folded Carton Simulator (Esko Studio Grade)")
         st.write("WebGL real-time 3D rendering of the folded packaging carton. Drag with your mouse to rotate 360°, zoom in to inspect panels, or click quick view buttons.")
         carton_3d_html = pipeline.get_3d_carton_html()
-        st.components.v1.html(carton_3d_html, height=570, scrolling=False)
+        st.components.v1.html(carton_3d_html, height=580, scrolling=False)
 
         col1, col2, col3 = st.columns(3)
         col1.info("💡 **Mode Toggle**: Click '🔴 Original Defective Artwork' in the 3D header to see the 12 defects, or '🟢 Remediated Production Pack' for verified specs.")
@@ -350,7 +350,7 @@ else:
         st.subheader("🎨 Mechanical 2D Dieline Net Inspector")
         st.write("Flat dieline net layout showing panel geometry, fold creases, and exact mechanical defect hotspot pins.")
         dieline_svg = pipeline.get_dieline_html()
-        st.components.v1.html(dieline_svg, height=660, scrolling=False)
+        st.components.v1.html(dieline_svg, height=680, scrolling=True)
 
     # TAB 3: BEFORE VS AFTER VISUAL DIFF
     with tabs[2]:

@@ -201,20 +201,44 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
         </div>
 
         <script>
+            // Safe cross-browser rounded rectangle helper
+            function drawRoundedRect(ctx, x, y, width, height, radius) {{
+                ctx.beginPath();
+                if (ctx.roundRect) {{
+                    ctx.roundRect(x, y, width, height, radius);
+                }} else {{
+                    ctx.moveTo(x + radius, y);
+                    ctx.lineTo(x + width - radius, y);
+                    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                    ctx.lineTo(x + width, y + height - radius);
+                    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                    ctx.lineTo(x + radius, y + height);
+                    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                    ctx.lineTo(x, y + radius);
+                    ctx.quadraticCurveTo(x, y, x + radius, y);
+                    ctx.closePath();
+                }}
+            }}
+
             const CARTON_DATA = {data_json};
-            let currentMode = CARTON_DATA.initialMode || 'remediated'; // 'remediated' or 'defective'
+            let currentMode = CARTON_DATA.initialMode || 'remediated';
             let autoSpin = true;
+            let carton = null;
+            let materials = [];
 
             const container = document.getElementById('container');
             const scene = new THREE.Scene();
             scene.background = new THREE.Color(0x0B1120);
 
-            const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const width = container.clientWidth || 800;
+            const height = container.clientHeight || 530;
+
+            const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
             camera.position.set(2.9, 1.4, 4.2);
 
             const renderer = new THREE.WebGLRenderer({{ antialias: true, alpha: true }});
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setSize(width, height);
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             container.appendChild(renderer.domElement);
@@ -232,8 +256,6 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
             const keyLight = new THREE.DirectionalLight(0xFFFFFF, 0.9);
             keyLight.position.set(6, 12, 8);
             keyLight.castShadow = true;
-            keyLight.shadow.mapSize.width = 1024;
-            keyLight.shadow.mapSize.height = 1024;
             scene.add(keyLight);
 
             const fillLight = new THREE.DirectionalLight(0x93C5FD, 0.4);
@@ -249,7 +271,6 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
             // ==========================================
 
             function drawCerealBowlGraphic(ctx, cx, cy, radius) {{
-                // Ceramic bowl rim
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -272,20 +293,19 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fill();
                 }}
 
-                // Berries (Cranberries & Blueberries)
+                // Berries
                 const berries = [
-                    {{ x: cx - 35, y: cy - 20, r: 12, col: '#DC2626' }}, // Cranberry
-                    {{ x: cx + 30, y: cy - 35, r: 10, col: '#2563EB' }}, // Blueberry
-                    {{ x: cx + 15, y: cy + 30, r: 11, col: '#1E40AF' }}, // Blueberry
-                    {{ x: cx - 25, y: cy + 35, r: 13, col: '#B91C1C' }}, // Cranberry
-                    {{ x: cx + 45, y: cy + 10, r: 12, col: '#EF4444' }}  // Cranberry
+                    {{ x: cx - 35, y: cy - 20, r: 12, col: '#DC2626' }},
+                    {{ x: cx + 30, y: cy - 35, r: 10, col: '#2563EB' }},
+                    {{ x: cx + 15, y: cy + 30, r: 11, col: '#1E40AF' }},
+                    {{ x: cx - 25, y: cy + 35, r: 13, col: '#B91C1C' }},
+                    {{ x: cx + 45, y: cy + 10, r: 12, col: '#EF4444' }}
                 ];
                 berries.forEach(b => {{
                     ctx.beginPath();
                     ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
                     ctx.fillStyle = b.col;
                     ctx.fill();
-                    // Specular highlight
                     ctx.beginPath();
                     ctx.arc(b.x - 3, b.y - 3, b.r * 0.3, 0, Math.PI * 2);
                     ctx.fillStyle = 'rgba(255,255,255,0.7)';
@@ -311,34 +331,28 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 c.width = 512; c.height = 768;
                 const ctx = c.getContext('2d');
 
-                // Rich Deep Navy Blue Background
                 const bgGrad = ctx.createLinearGradient(0, 0, 0, 768);
                 bgGrad.addColorStop(0, '#1E3A8A');
                 bgGrad.addColorStop(1, '#0F172A');
                 ctx.fillStyle = bgGrad;
                 ctx.fillRect(0, 0, 512, 768);
 
-                // Gold foil border
                 ctx.strokeStyle = '#F59E0B';
                 ctx.lineWidth = 10;
                 ctx.strokeRect(18, 18, 476, 732);
 
-                // Brand Header
                 ctx.fillStyle = '#FFFFFF';
                 ctx.font = 'bold 44px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.letterSpacing = '2px';
                 ctx.fillText(CARTON_DATA.brand, 256, 115);
 
                 ctx.fillStyle = '#FCD34D';
                 ctx.font = 'bold 24px sans-serif';
                 ctx.fillText(CARTON_DATA.productName, 256, 160);
 
-                // Cereal Bowl Artwork
                 drawCerealBowlGraphic(ctx, 256, 335, 125);
 
                 if (mode === 'defective') {{
-                    // DEFECT 1: MISSING SERVING DISCLAIMER
                     ctx.strokeStyle = '#EF4444';
                     ctx.lineWidth = 3;
                     ctx.setLineDash([6, 4]);
@@ -348,7 +362,6 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.font = 'bold 13px sans-serif';
                     ctx.fillText('❌ MISSING DISCLAIMER: Depicts fresh berries with no notice', 256, 494);
 
-                    // DEFECT 2: ILLEGAL CERTIFIED VEGAN BADGE ON HONEY PRODUCT
                     ctx.fillStyle = '#EF4444';
                     ctx.fillRect(40, 520, 210, 46);
                     ctx.strokeStyle = '#FFFFFF';
@@ -360,14 +373,12 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.font = '10px sans-serif';
                     ctx.fillText('VIOLATION: HONEY INCLUDED', 145, 560);
 
-                    // GMO Free Badge
                     ctx.fillStyle = '#475569';
                     ctx.fillRect(265, 520, 205, 46);
                     ctx.fillStyle = '#FFFFFF';
                     ctx.font = 'bold 14px sans-serif';
                     ctx.fillText('NON-GMO VERIFIED', 367, 548);
 
-                    // DEFECT 3: MISPLACED / NON-COMPLIANT NET WEIGHT
                     ctx.fillStyle = '#7F1D1D';
                     ctx.fillRect(100, 640, 312, 50);
                     ctx.fillStyle = '#FCA5A5';
@@ -375,33 +386,26 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fillText('❌ NET WT: Misplaced / Missing lower 30% rule', 256, 670);
 
                 }} else {{
-                    // REMEDIATED PRODUCTION PDP
-                    // Mandatory Serving Suggestion Disclaimer (FTC & FDA truth in advertising)
                     ctx.fillStyle = '#FDE68A';
                     ctx.font = 'italic 15px sans-serif';
                     ctx.fillText('Serving Suggestion. Fresh fruit not included.', 256, 485);
 
-                    // Badges: USDA Organic & Non-GMO Verified
                     ctx.fillStyle = '#059669';
-                    ctx.beginPath();
-                    ctx.roundRect(50, 515, 195, 42, 6);
+                    drawRoundedRect(ctx, 50, 515, 195, 42, 6);
                     ctx.fill();
                     ctx.fillStyle = '#FFFFFF';
                     ctx.font = 'bold 15px sans-serif';
                     ctx.fillText('🌿 USDA ORGANIC', 147, 542);
 
                     ctx.fillStyle = '#2563EB';
-                    ctx.beginPath();
-                    ctx.roundRect(265, 515, 195, 42, 6);
+                    drawRoundedRect(ctx, 265, 515, 195, 42, 6);
                     ctx.fill();
                     ctx.fillStyle = '#FFFFFF';
                     ctx.font = 'bold 15px sans-serif';
                     ctx.fillText('✔ NON-GMO VERIFIED', 362, 542);
 
-                    // Statutory Net Weight in Lower 30% Zone (FDA 21 CFR 101.7)
                     ctx.fillStyle = '#0F172A';
-                    ctx.beginPath();
-                    ctx.roundRect(40, 620, 432, 70, 8);
+                    drawRoundedRect(ctx, 40, 620, 432, 70, 8);
                     ctx.fill();
                     ctx.strokeStyle = '#10B981';
                     ctx.lineWidth = 3;
@@ -415,7 +419,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 return new THREE.CanvasTexture(c);
             }}
 
-            // 2. BACK PANEL TEXTURE (Story, Formula, Allergens, Lozenges)
+            // 2. BACK PANEL TEXTURE
             function createBackTexture(mode) {{
                 const c = document.createElement('canvas');
                 c.width = 512; c.height = 768;
@@ -439,13 +443,11 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.fillText('INGREDIENTS:', 40, 165);
 
                 if (mode === 'defective') {{
-                    // DEFECT: FORMULA CONFLICT & WEAK ALLERGENS & UK TRAFFIC LIGHTS
                     ctx.fillStyle = '#F87171';
                     ctx.font = '14px sans-serif';
                     ctx.fillText('Organic Oat Flakes (79%), Honey (1% vs 9% Conflict!),', 40, 195);
                     ctx.fillText('Vegetable Oils, Blueberries, Cranberries, Seeds.', 40, 220);
 
-                    // Weak Allergen Declaration
                     ctx.fillStyle = '#450A0A';
                     ctx.fillRect(35, 270, 442, 85);
                     ctx.strokeStyle = '#EF4444';
@@ -459,10 +461,10 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.font = '13px sans-serif';
                     ctx.fillText('May Contain Almonds, May Contain Pecans (FALCPA Violation)', 50, 324);
 
-                    // UK Traffic Light Lozenges
                     ctx.fillStyle = '#1F2937';
                     ctx.fillRect(35, 385, 442, 95);
                     ctx.strokeStyle = '#EF4444';
+                    ctx.lineWidth = 2;
                     ctx.strokeRect(35, 385, 442, 95);
                     ctx.fillStyle = '#EF4444';
                     ctx.font = 'bold 13px sans-serif';
@@ -478,13 +480,11 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                         ctx.fillText(labels[i], 65 + i * 102, 452);
                     }}
 
-                    // Contradictory Vegan text
                     ctx.fillStyle = '#EF4444';
                     ctx.font = 'bold 15px sans-serif';
                     ctx.fillText('❌ "Suitable for Vegetarians (Vegan)" - Deceptive', 50, 525);
 
                 }} else {{
-                    // REMEDIATED PRODUCTION BACK PANEL
                     ctx.fillStyle = '#E2E8F0';
                     ctx.font = '14.5px sans-serif';
                     const lines = [
@@ -496,10 +496,8 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ];
                     lines.forEach((l, i) => ctx.fillText(l, 40, 195 + i * 25));
 
-                    // Mandatory Bold FALCPA Allergen Box
                     ctx.fillStyle = '#0F172A';
-                    ctx.beginPath();
-                    ctx.roundRect(35, 340, 442, 110, 8);
+                    drawRoundedRect(ctx, 35, 340, 442, 110, 8);
                     ctx.fill();
                     ctx.strokeStyle = '#10B981';
                     ctx.lineWidth = 2.5;
@@ -515,12 +513,10 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fillStyle = '#CBD5E1';
                     ctx.fillText('MAY CONTAIN: BRAZIL NUTS, OTHER TREE NUTS, WHEAT.', 50, 428);
 
-                    // Compliant Vegetarian Claim
                     ctx.fillStyle = '#10B981';
                     ctx.font = 'bold 17px sans-serif';
                     ctx.fillText('✔ Suitable for Vegetarians', 50, 490);
 
-                    // Storage Copy
                     ctx.fillStyle = '#94A3B8';
                     ctx.font = '13.5px sans-serif';
                     ctx.fillText('Store in a cool, dry place. Keep closed once opened.', 50, 540);
@@ -530,7 +526,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 return new THREE.CanvasTexture(c);
             }}
 
-            // 3. NUTRITION PANEL (LEFT SIDE FACE)
+            // 3. NUTRITION PANEL
             function createNutritionTexture(mode) {{
                 const c = document.createElement('canvas');
                 c.width = 256; c.height = 768;
@@ -556,12 +552,10 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fillText('Calories   166', 16, 165);
                     ctx.fillRect(16, 178, 224, 4);
 
-                    // Typo DIETRAY FIBER
                     ctx.fillStyle = '#DC2626';
                     ctx.font = 'bold 14px sans-serif';
                     ctx.fillText('❌ DIETRAY FIBER  3g', 16, 230);
 
-                    // False Added Sugars 0g
                     ctx.fillStyle = '#DC2626';
                     ctx.font = 'bold 13px sans-serif';
                     ctx.fillText('❌ Incl. 0g Added Sugars', 16, 275);
@@ -594,12 +588,10 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fillText('Total Fat 15g                    19%', 16, 212);
                     ctx.fillText('Total Carbohydrate 15g    5%', 16, 242);
 
-                    // Statutory DIETARY FIBER
                     ctx.font = '13px sans-serif';
                     ctx.fillText('  Dietary Fiber 3g            11%', 16, 270);
                     ctx.fillText('  Total Sugars 18g', 16, 298);
 
-                    // Remediated Added Sugars
                     ctx.fillStyle = '#059669';
                     ctx.font = 'bold 13px sans-serif';
                     ctx.fillText('  Incl. 7g Added Sugars     14%', 16, 326);
@@ -618,7 +610,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 return new THREE.CanvasTexture(c);
             }}
 
-            // 4. SPECS & BARCODE (RIGHT SIDE FACE)
+            // 4. SPECS & BARCODE
             function createSpecTexture(mode) {{
                 const c = document.createElement('canvas');
                 c.width = 256; c.height = 768;
@@ -638,7 +630,6 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.fillText('Logo: Spot Gloss UV', 20, 149);
 
                 if (mode === 'defective') {{
-                    // Typo RECYCABLE
                     ctx.fillStyle = '#450A0A';
                     ctx.fillRect(16, 200, 224, 60);
                     ctx.strokeStyle = '#EF4444';
@@ -650,17 +641,14 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fillText('"RECYCABLE"', 25, 248);
 
                 }} else {{
-                    // Corrected RECYCLABLE
                     ctx.fillStyle = '#064E3B';
-                    ctx.beginPath();
-                    ctx.roundRect(16, 200, 224, 55, 6);
+                    drawRoundedRect(ctx, 16, 200, 224, 55, 6);
                     ctx.fill();
                     ctx.fillStyle = '#34D399';
                     ctx.font = 'bold 13px sans-serif';
                     ctx.fillText('✔ 100% RECYCLABLE', 25, 233);
                 }}
 
-                // Barcode Block with standard quiet zones
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(18, 300, 220, 120);
                 ctx.fillStyle = '#000000';
@@ -675,7 +663,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 return new THREE.CanvasTexture(c);
             }}
 
-            // 5. TOP FLAP TEXTURE
+            // 5. TOP FLAP
             function createTopTexture(mode) {{
                 const c = document.createElement('canvas');
                 c.width = 512; c.height = 256;
@@ -690,7 +678,6 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.fillText(CARTON_DATA.brand, 256, 85);
 
                 if (mode === 'defective') {{
-                    // ILLEGAL NO ADDED SUGAR CALLOUT
                     ctx.fillStyle = '#DC2626';
                     ctx.fillRect(40, 120, 432, 65);
                     ctx.strokeStyle = '#FFFFFF';
@@ -705,7 +692,6 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.fillText('CRITICAL VIOLATION: FDA 21 CFR 101.60(c)(2)', 256, 175);
 
                 }} else {{
-                    // CLEAN REMEDIATED TOP FLAP
                     ctx.fillStyle = '#FCD34D';
                     ctx.font = '17px sans-serif';
                     ctx.fillText('Artisan Packaging Closure', 256, 130);
@@ -717,7 +703,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 return new THREE.CanvasTexture(c);
             }}
 
-            // 6. BOTTOM BASE TEXTURE
+            // 6. BOTTOM BASE
             function createBottomTexture() {{
                 const c = document.createElement('canvas');
                 c.width = 512; c.height = 256;
@@ -738,12 +724,9 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 return new THREE.CanvasTexture(c);
             }}
 
-            // Assemble Mesh
-            const geometry = new THREE.BoxGeometry(1.8, 2.6, 0.9);
-            let materials = [];
-
-            function updateMaterials(mode) {{
-                materials = [
+            // Material Builder
+            function getMaterials(mode) {{
+                return [
                     new THREE.MeshStandardMaterial({{ map: createSpecTexture(mode), roughness: 0.45 }}),      // +X (Right)
                     new THREE.MeshStandardMaterial({{ map: createNutritionTexture(mode), roughness: 0.3 }}), // -X (Left)
                     new THREE.MeshStandardMaterial({{ map: createTopTexture(mode), roughness: 0.45 }}),        // +Y (Top)
@@ -751,18 +734,17 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     new THREE.MeshStandardMaterial({{ map: createFrontTexture(mode), roughness: 0.25 }}),     // +Z (Front)
                     new THREE.MeshStandardMaterial({{ map: createBackTexture(mode), roughness: 0.35 }})        // -Z (Back)
                 ];
-                if (carton) {{
-                    carton.material = materials;
-                }}
             }}
 
-            updateMaterials(currentMode);
-            const carton = new THREE.Mesh(geometry, materials);
+            // Initialize Mesh Safely
+            const geometry = new THREE.BoxGeometry(1.8, 2.6, 0.9);
+            materials = getMaterials(currentMode);
+            carton = new THREE.Mesh(geometry, materials);
             carton.castShadow = true;
             carton.receiveShadow = true;
             scene.add(carton);
 
-            // Shadow Ground Plane
+            // Ground Plane
             const planeGeo = new THREE.PlaneGeometry(10, 10);
             const planeMat = new THREE.ShadowMaterial({{ opacity: 0.3 }});
             const plane = new THREE.Mesh(planeGeo, planeMat);
@@ -771,10 +753,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
             plane.receiveShadow = true;
             scene.add(plane);
 
-            // ==========================================
-            // UI INTERACTIONS & CAMERA PRESETS
-            // ==========================================
-
+            // UI Actions
             const hudDot = document.getElementById('hud-dot');
             const hudText = document.getElementById('hud-text');
 
@@ -783,7 +762,13 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 hudText.innerHTML = text;
             }}
 
-            // Mode Switching
+            function updateCartonTextures(mode) {{
+                materials = getMaterials(mode);
+                if (carton) {{
+                    carton.material = materials;
+                }}
+            }}
+
             const btnDefective = document.getElementById('btn-mode-defective');
             const btnRemediated = document.getElementById('btn-mode-remediated');
 
@@ -791,7 +776,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 currentMode = 'defective';
                 btnDefective.className = 'mode-btn active-defective';
                 btnRemediated.className = 'mode-btn';
-                updateMaterials('defective');
+                updateCartonTextures('defective');
                 setHUD('<strong>Defective Artwork Mode:</strong> Red highlights reveal 12 hidden FDA violations & typos', false);
             }};
 
@@ -799,11 +784,11 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 currentMode = 'remediated';
                 btnRemediated.className = 'mode-btn active-remediated';
                 btnDefective.className = 'mode-btn';
-                updateMaterials('remediated');
+                updateCartonTextures('remediated');
                 setHUD('<strong>Remediated Mode:</strong> Verified production specs meeting US 21 CFR standards', true);
             }};
 
-            // Camera Controls
+            // Camera Presets
             let targetCamPos = null;
 
             function animateCameraTo(x, y, z) {{
@@ -848,11 +833,11 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 setHUD('<strong>Base Panel:</strong> Inkjet date code & lot number inspection window', true);
             }};
 
-            // Render Loop
+            // Animation Loop
             function animate() {{
                 requestAnimationFrame(animate);
 
-                if (autoSpin) {{
+                if (autoSpin && carton) {{
                     carton.rotation.y += 0.007;
                 }}
 
@@ -871,9 +856,11 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
             animate();
 
             window.addEventListener('resize', () => {{
-                camera.aspect = container.clientWidth / container.clientHeight;
+                const w = container.clientWidth || window.innerWidth;
+                const h = container.clientHeight || 530;
+                camera.aspect = w / h;
                 camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
+                renderer.setSize(w, h);
             }});
         </script>
     </body>
