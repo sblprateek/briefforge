@@ -16,6 +16,11 @@ load_dotenv(BASE_DIR / ".env")
 sys.path.insert(0, str(BASE_DIR))
 
 import streamlit as st
+
+# Automatically sync Streamlit Cloud secrets to environment
+if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets:
+    os.environ["GEMINI_API_KEY"] = st.secrets["GEMINI_API_KEY"]
+
 from core.pipeline import BriefForgePipeline
 from core.fusion.fact_store import ExtractedFact, ValidationIssue, SmartQuestion
 from core.generation.brief_schema import BriefDocument, BriefSection, BriefField
