@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class BriefComposer:
     """Assembles all components into a polished BriefDocument."""
 
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "gemini-3.8-flash"):
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
@@ -146,7 +146,7 @@ class BriefComposer:
             BriefField(
                 label="Nutrition Facts Panel Specification",
                 value=nutr_val,
-                source="Carton PDF (Left Panel) + Confirmed by Brand Manager"
+                source="Carton PDF (Right Information Panel) + Confirmed by Brand Manager"
             ),
             BriefField(
                 label="Sugar Claim Correction",

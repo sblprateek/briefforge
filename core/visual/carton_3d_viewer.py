@@ -187,8 +187,8 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     <button class="btn-3d" id="btn-spin">⏸️ Pause Spin</button>
                     <button class="btn-3d active" id="btn-pdp">Front (PDP)</button>
                     <button class="btn-3d" id="btn-back">Back Panel</button>
-                    <button class="btn-3d" id="btn-nutrition">Nutrition (Left)</button>
-                    <button class="btn-3d" id="btn-specs">Specs & Barcode (Right)</button>
+                    <button class="btn-3d" id="btn-nutrition">Nutrition (Right)</button>
+                    <button class="btn-3d" id="btn-specs">Specs & Barcode (Left)</button>
                     <button class="btn-3d" id="btn-top">Top Flap</button>
                     <button class="btn-3d" id="btn-base">Base</button>
                 </div>
@@ -725,14 +725,20 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
             }}
 
             // Material Builder
+            // Face 0 (+X): Right Panel -> FDA 21 CFR 101.2 Information Panel (Nutrition Facts)
+            // Face 1 (-X): Left Panel -> Technical Specs, FSC 18pt SBS Substrate & Barcode
+            // Face 2 (+Y): Top Flap
+            // Face 3 (-Y): Bottom Base
+            // Face 4 (+Z): Front Panel (PDP)
+            // Face 5 (-Z): Back Panel (Formulation & Story)
             function getMaterials(mode) {{
                 return [
-                    new THREE.MeshStandardMaterial({{ map: createSpecTexture(mode), roughness: 0.45 }}),      // +X (Right)
-                    new THREE.MeshStandardMaterial({{ map: createNutritionTexture(mode), roughness: 0.3 }}), // -X (Left)
-                    new THREE.MeshStandardMaterial({{ map: createTopTexture(mode), roughness: 0.45 }}),        // +Y (Top)
-                    new THREE.MeshStandardMaterial({{ map: createBottomTexture(), roughness: 0.55 }}),         // -Y (Bottom)
-                    new THREE.MeshStandardMaterial({{ map: createFrontTexture(mode), roughness: 0.25 }}),     // +Z (Front)
-                    new THREE.MeshStandardMaterial({{ map: createBackTexture(mode), roughness: 0.35 }})        // -Z (Back)
+                    new THREE.MeshStandardMaterial({{ map: createNutritionTexture(mode), roughness: 0.3 }}),  // +X (Right Panel: Nutrition Facts)
+                    new THREE.MeshStandardMaterial({{ map: createSpecTexture(mode), roughness: 0.45 }}),     // -X (Left Panel: Specs & Barcode)
+                    new THREE.MeshStandardMaterial({{ map: createTopTexture(mode), roughness: 0.45 }}),       // +Y (Top Flap)
+                    new THREE.MeshStandardMaterial({{ map: createBottomTexture(), roughness: 0.55 }}),        // -Y (Bottom Base)
+                    new THREE.MeshStandardMaterial({{ map: createFrontTexture(mode), roughness: 0.25 }}),    // +Z (Front PDP)
+                    new THREE.MeshStandardMaterial({{ map: createBackTexture(mode), roughness: 0.35 }})       // -Z (Back Panel)
                 ];
             }}
 
@@ -814,13 +820,13 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
             }};
 
             document.getElementById('btn-nutrition').onclick = () => {{
-                animateCameraTo(-3.6, 0, 0);
-                setHUD(currentMode === 'defective' ? '<strong>Left Panel:</strong> Misspelled "DIETRAY FIBER" & 0g Added Sugars falsification' : '<strong>Left Panel:</strong> US FDA 2016 vertical Nutrition Facts with true Added Sugars', currentMode === 'remediated');
+                animateCameraTo(3.6, 0, 0);
+                setHUD(currentMode === 'defective' ? '<strong>Right Panel:</strong> Misspelled "DIETRAY FIBER" & 0g Added Sugars falsification' : '<strong>Right Panel:</strong> FDA 21 CFR 101.2 Information Panel with vertical Nutrition Facts', currentMode === 'remediated');
             }};
 
             document.getElementById('btn-specs').onclick = () => {{
-                animateCameraTo(3.6, 0, 0);
-                setHUD(currentMode === 'defective' ? '<strong>Right Panel:</strong> Typo "RECYCABLE PAPERBOARD"' : '<strong>Right Panel:</strong> Corrected "RECYCLABLE", FSC 18pt SBS & UPC quiet zone verified', currentMode === 'remediated');
+                animateCameraTo(-3.6, 0, 0);
+                setHUD(currentMode === 'defective' ? '<strong>Left Panel:</strong> Typo "RECYCABLE PAPERBOARD"' : '<strong>Left Panel:</strong> Corrected "RECYCLABLE", FSC 18pt SBS & UPC quiet zone verified', currentMode === 'remediated');
             }};
 
             document.getElementById('btn-top').onclick = () => {{

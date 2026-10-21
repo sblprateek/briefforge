@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class PDFExtractor:
     """Extracts packaging artwork panels, text, barcodes, certifications, and dieline data from PDF."""
 
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "gemini-3.8-flash"):
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
@@ -200,7 +200,7 @@ class PDFExtractor:
             value="US FDA 2016 Standard Vertical format, 8 servings per container, 60g serving size",
             source_file=filename,
             source_type="pdf_artwork",
-            source_location="Left Panel",
+            source_location="Right Panel (Information Panel)",
             confidence=0.90,
             category="regulatory"
         ))

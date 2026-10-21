@@ -342,7 +342,7 @@ else:
 
         col1, col2, col3 = st.columns(3)
         col1.info("💡 **Mode Toggle**: Click '🔴 Original Defective Artwork' in the 3D header to see the 12 defects, or '🟢 Remediated Production Pack' for verified specs.")
-        col2.info("💡 **Camera Presets**: Click any face button (PDP, Back, Nutrition, Specs, Top Flap) for instantaneous orbital alignment.")
+        col2.info("💡 **Panel Layout**: Right Panel = FDA 21 CFR 101.2 Nutrition Facts; Left Panel = Specifications & UPC Barcode.")
         col3.info("💡 **360° Free Orbit**: Drag with your mouse to inspect carton seams, crease folds, and dieline geometries in 3D.")
 
     # TAB 2: 2D DIELINE NET INSPECTOR

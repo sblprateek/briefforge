@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class ExcelExtractor:
     """Extracts formulation, allergens, nutrition tables, notes, and BPN identifiers from Excel."""
 
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "gemini-3.8-flash"):
         self.api_key = os.environ.get("GEMINI_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)

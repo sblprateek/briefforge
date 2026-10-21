@@ -59,33 +59,41 @@ def render_interactive_dieline(issues: Optional[List[Any]] = None, facts: Option
                 <text x="60" y="235" fill="#94A3B8" font-size="9.5" font-weight="700" transform="rotate(-90 60 235)" text-anchor="middle">GLUE TAB (Adhesive Window 15mm)</text>
             </g>
 
-            <!-- LEFT SIDE PANEL (Nutrition & Allergens) -->
+            <!-- LEFT SIDE PANEL (Specs & Barcode) -->
             <g id="panel-left-side" style="cursor:pointer;">
                 <rect x="80" y="100" width="180" height="250" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
-                <text x="170" y="122" fill="#38BDF8" font-size="10.5" font-weight="700" text-anchor="middle">LEFT PANEL (Nutrition &amp; Allergens)</text>
-                
-                <!-- Nutrition Box Mockup -->
-                <rect x="95" y="135" width="150" height="135" fill="#1E293B" stroke="#475569" rx="4"/>
-                <text x="105" y="152" fill="white" font-size="9.5" font-weight="800">Nutrition Facts</text>
-                <text x="105" y="165" fill="#38BDF8" font-size="8">8 servings per container (60g)</text>
-                <text x="105" y="180" fill="#CBD5E1" font-size="8">Calories 166</text>
-                <text x="105" y="197" fill="#EF4444" font-size="7.5" font-weight="800">❌ Typo: 'DIETRAY FIBER'</text>
-                <text x="105" y="212" fill="#EF4444" font-size="7.5" font-weight="800">❌ Declared 0g Added Sugars</text>
-                <text x="105" y="227" fill="#10B981" font-size="7.5" font-weight="700">➜ Correct to 7g Added Sugars</text>
+                <text x="170" y="122" fill="#38BDF8" font-size="10.5" font-weight="700" text-anchor="middle">LEFT PANEL (Specs &amp; Barcode)</text>
 
-                <!-- Hotspot Pin: Nutrition Typo & Sugars -->
-                <circle cx="230" cy="148" r="9" fill="#EF4444" filter="url(#glow-red)"/>
-                <text x="230" y="152" fill="white" font-size="10" font-weight="900" text-anchor="middle">!</text>
+                <!-- UPC Barcode -->
+                <rect x="100" y="140" width="140" height="65" fill="white" rx="4"/>
+                <line x1="115" y1="148" x2="115" y2="185" stroke="black" stroke-width="2"/>
+                <line x1="120" y1="148" x2="120" y2="185" stroke="black" stroke-width="3"/>
+                <line x1="128" y1="148" x2="128" y2="185" stroke="black" stroke-width="1"/>
+                <line x1="135" y1="148" x2="135" y2="185" stroke="black" stroke-width="4"/>
+                <line x1="145" y1="148" x2="145" y2="185" stroke="black" stroke-width="2"/>
+                <line x1="155" y1="148" x2="155" y2="185" stroke="black" stroke-width="3"/>
+                <line x1="165" y1="148" x2="165" y2="185" stroke="black" stroke-width="1.5"/>
+                <line x1="175" y1="148" x2="175" y2="185" stroke="black" stroke-width="3"/>
+                <text x="170" y="196" fill="black" font-size="8" font-family="monospace" text-anchor="middle">{barcode}</text>
 
-                <!-- Hotspot Pin: Serving size -->
-                <circle cx="230" cy="175" r="7.5" fill="#F59E0B" filter="url(#glow-amber)"/>
-                <text x="230" y="178" fill="white" font-size="8" font-weight="900" text-anchor="middle">!</text>
+                <!-- Hotspot Pin: Quiet Zone -->
+                <circle cx="230" cy="150" r="7.5" fill="#F59E0B" filter="url(#glow-amber)"/>
+                <text x="230" y="153" fill="white" font-size="8" font-weight="900" text-anchor="middle">!</text>
 
-                <!-- Allergen Box -->
-                <rect x="95" y="278" width="150" height="62" fill="#1E293B" stroke="#475569" rx="4"/>
-                <text x="102" y="293" fill="#F59E0B" font-size="7.5" font-weight="700">⚠️ Allergen Formatting:</text>
-                <text x="102" y="307" fill="#CBD5E1" font-size="7">Mandate bold 'CONTAINS:' statement</text>
-                <text x="102" y="322" fill="#10B981" font-size="7" font-weight="700">Tree nuts: Almonds, Pecans, Walnuts</text>
+                <!-- Recycling Typo callout -->
+                <rect x="100" y="215" width="140" height="40" fill="#1E293B" stroke="#F59E0B" rx="4"/>
+                <text x="170" y="230" fill="#F59E0B" font-size="7.5" font-weight="700" text-anchor="middle">❌ Typo: 'RECYCABLE'</text>
+                <text x="170" y="244" fill="#10B981" font-size="7" font-weight="700" text-anchor="middle">➜ Correct to 'RECYCLABLE'</text>
+
+                <!-- Hotspot Pin: Typo -->
+                <circle cx="230" cy="228" r="7.5" fill="#F59E0B" filter="url(#glow-amber)"/>
+                <text x="230" y="231" fill="white" font-size="8" font-weight="900" text-anchor="middle">!</text>
+
+                <!-- Substrate callout -->
+                <rect x="100" y="265" width="140" height="75" fill="#1E293B" stroke="#475569" rx="4"/>
+                <text x="170" y="282" fill="#38BDF8" font-size="7.5" font-weight="700" text-anchor="middle">Substrate Specification</text>
+                <text x="170" y="298" fill="#94A3B8" font-size="7" text-anchor="middle">FSC-Certified 18pt SBS Caliper</text>
+                <text x="170" y="314" fill="#94A3B8" font-size="6.5" text-anchor="middle">Matte Aqueous + Spot UV Logo</text>
             </g>
 
             <!-- FRONT PANEL (Principal Display Panel / PDP) -->
@@ -123,16 +131,34 @@ def render_interactive_dieline(issues: Optional[List[Any]] = None, facts: Option
                 <text x="455" y="303" fill="white" font-size="9.5" font-weight="900" text-anchor="middle">!</text>
             </g>
 
-            <!-- RIGHT SIDE PANEL (Barcodes & Certifications) -->
+            <!-- RIGHT SIDE PANEL (Nutrition Facts & Allergens - FDA 21 CFR 101.2) -->
             <g id="panel-right-side" style="cursor:pointer;">
                 <rect x="480" y="100" width="180" height="250" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
-                <text x="570" y="122" fill="#38BDF8" font-size="10.5" font-weight="700" text-anchor="middle">RIGHT PANEL (Specs &amp; Barcode)</text>
+                <text x="570" y="122" fill="#38BDF8" font-size="10.5" font-weight="700" text-anchor="middle">RIGHT PANEL (Nutrition &amp; Allergens)</text>
 
-                <!-- UPC Barcode -->
-                <rect x="500" y="140" width="140" height="65" fill="white" rx="4"/>
-                <line x1="515" y1="148" x2="515" y2="185" stroke="black" stroke-width="2"/>
-                <line x1="520" y1="148" x2="520" y2="185" stroke="black" stroke-width="3"/>
-                <line x1="528" y1="148" x2="528" y2="185" stroke="black" stroke-width="1"/>
+                <!-- Nutrition Box Mockup -->
+                <rect x="495" y="135" width="150" height="135" fill="#1E293B" stroke="#475569" rx="4"/>
+                <text x="505" y="152" fill="white" font-size="9.5" font-weight="800">Nutrition Facts</text>
+                <text x="505" y="165" fill="#38BDF8" font-size="8">8 servings per container (60g)</text>
+                <text x="505" y="180" fill="#CBD5E1" font-size="8">Calories 166</text>
+                <text x="505" y="197" fill="#EF4444" font-size="7.5" font-weight="800">❌ Typo: 'DIETRAY FIBER'</text>
+                <text x="505" y="212" fill="#EF4444" font-size="7.5" font-weight="800">❌ Declared 0g Added Sugars</text>
+                <text x="505" y="227" fill="#10B981" font-size="7.5" font-weight="700">➜ Correct to 7g Added Sugars</text>
+
+                <!-- Hotspot Pin: Nutrition Typo & Sugars -->
+                <circle cx="630" cy="148" r="9" fill="#EF4444" filter="url(#glow-red)"/>
+                <text x="630" y="152" fill="white" font-size="10" font-weight="900" text-anchor="middle">!</text>
+
+                <!-- Hotspot Pin: Serving size -->
+                <circle cx="630" cy="175" r="7.5" fill="#F59E0B" filter="url(#glow-amber)"/>
+                <text x="630" y="178" fill="white" font-size="8" font-weight="900" text-anchor="middle">!</text>
+
+                <!-- Allergen Box -->
+                <rect x="495" y="278" width="150" height="62" fill="#1E293B" stroke="#475569" rx="4"/>
+                <text x="502" y="293" fill="#F59E0B" font-size="7.5" font-weight="700">⚠️ Allergen Formatting:</text>
+                <text x="502" y="307" fill="#CBD5E1" font-size="7">Mandate bold 'CONTAINS:' statement</text>
+                <text x="502" y="322" fill="#10B981" font-size="7" font-weight="700">Tree nuts: Almonds, Pecans, Walnuts</text>
+            </g>
                 <line x1="535" y1="148" x2="535" y2="185" stroke="black" stroke-width="4"/>
                 <line x1="545" y1="148" x2="545" y2="185" stroke="black" stroke-width="2"/>
                 <line x1="555" y1="148" x2="555" y2="185" stroke="black" stroke-width="3"/>
@@ -243,14 +269,14 @@ def render_interactive_dieline(issues: Optional[List[Any]] = None, facts: Option
             <div style="background:#1E293B; border-left:3px solid #EF4444; padding:8px 10px; border-radius:5px;">
                 <strong style="color:#EF4444;">1. Top Flap:</strong> Purge illegal 'NO ADDED SUGAR' claim badge per 21 CFR 101.60.
             </div>
-            <div style="background:#1E293B; border-left:3px solid #EF4444; padding:8px 10px; border-radius:5px;">
-                <strong style="color:#EF4444;">2. Left Panel:</strong> Fix 'DIETRAY' typo, standardize 60g serving &amp; declare true added sugars.
+            <div style="background:#1E293B; border-left:3px solid #F59E0B; padding:8px 10px; border-radius:5px;">
+                <strong style="color:#F59E0B;">2. Left Panel (Specs):</strong> Fix 'RECYCABLE' typo, verify FSC 18pt SBS &amp; UPC quiet zones.
             </div>
             <div style="background:#1E293B; border-left:3px solid #10B981; padding:8px 10px; border-radius:5px;">
                 <strong style="color:#10B981;">3. PDP (Front):</strong> Position dual Net Quantity {net_wt} in lower 30% per 21 CFR 101.7.
             </div>
             <div style="background:#1E293B; border-left:3px solid #EF4444; padding:8px 10px; border-radius:5px;">
-                <strong style="color:#EF4444;">4. Back Panel:</strong> Elevate tree nuts to bold 'CONTAINS:', purge UK traffic lights &amp; vegan mark.
+                <strong style="color:#EF4444;">4. Right Panel (Nutrition):</strong> FDA Information Panel: fix 'DIETRAY' typo &amp; declare true added sugars.
             </div>
         </div>
     </div>

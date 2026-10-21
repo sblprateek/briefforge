@@ -38,21 +38,21 @@ def get_packaging_diff_matrix() -> List[Dict[str, str]]:
             "severity": "CRITICAL"
         },
         {
-            "panel": "Left Panel (Nutrition)",
+            "panel": "Right Panel (Nutrition)",
             "before_artwork": "Outdated panel format declaring 0g Added Sugars despite caloric sweeteners in recipe.",
             "after_remediated": "FDA 2016 vertical standard based on 60g serving size (8 servings), declaring true Added Sugars.",
             "regulatory_driver": "FDA 21 CFR 101.9 Mandatory Nutrition Labeling Revision.",
             "severity": "CRITICAL"
         },
         {
-            "panel": "Left Panel (Nutrition)",
+            "panel": "Right Panel (Nutrition)",
             "before_artwork": "Typographical error in key nutrient line: 'DIETRAY FIBER'.",
             "after_remediated": "Corrected typography to statutory standard: 'DIETARY FIBER'.",
             "regulatory_driver": "FDA 21 CFR 101.9(c)(6)(i) Mandatory Nutrient Nomenclature.",
             "severity": "CRITICAL"
         },
         {
-            "panel": "Left Panel (Nutrition)",
+            "panel": "Right Panel (Nutrition)",
             "before_artwork": "Unverified serving size and mathematical ambiguity on 480g total pack net weight.",
             "after_remediated": "Standardized 60g serving size (exactly 8 servings per 480g container) via Genesis R&D calculation.",
             "regulatory_driver": "FDA Reference Amount Customarily Consumed (RACC) for Granola / Ready-to-Eat Cereals.",
@@ -80,7 +80,7 @@ def get_packaging_diff_matrix() -> List[Dict[str, str]]:
             "severity": "WARNING"
         },
         {
-            "panel": "Right Panel (Specs)",
+            "panel": "Left Panel (Specs & Barcode)",
             "before_artwork": "Typographical error in recycling callout badge: 'RECYCABLE PAPERBOARD'.",
             "after_remediated": "Corrected typography to 'RECYCLABLE PAPERBOARD' matching How2Recycle guidelines.",
             "regulatory_driver": "Packaging Pre-Press Quality Standard & How2Recycle Label Guidelines.",
