@@ -338,19 +338,19 @@ else:
         st.subheader("📦 Interactive 3D Folded Carton Simulator (Esko Studio Grade)")
         st.write("WebGL real-time 3D rendering of the folded packaging carton. Drag with your mouse to rotate 360°, zoom in to inspect panels, or click quick view buttons.")
         carton_3d_html = pipeline.get_3d_carton_html()
-        st.components.v1.html(carton_3d_html, height=540, scrolling=False)
+        st.components.v1.html(carton_3d_html, height=570, scrolling=False)
 
         col1, col2, col3 = st.columns(3)
-        col1.info("💡 **Front Panel (PDP)**: Highlights mandatory lower 30% Net Quantity zone and cereal bowl photography.")
-        col2.info("💡 **Left Panel**: Recalculated FDA 2016 vertical Nutrition Facts panel with true Added Sugars.")
-        col3.info("💡 **Top Flap**: Verifies complete purging of the non-compliant 'NO ADDED SUGAR' badge.")
+        col1.info("💡 **Mode Toggle**: Click '🔴 Original Defective Artwork' in the 3D header to see the 12 defects, or '🟢 Remediated Production Pack' for verified specs.")
+        col2.info("💡 **Camera Presets**: Click any face button (PDP, Back, Nutrition, Specs, Top Flap) for instantaneous orbital alignment.")
+        col3.info("💡 **360° Free Orbit**: Drag with your mouse to inspect carton seams, crease folds, and dieline geometries in 3D.")
 
     # TAB 2: 2D DIELINE NET INSPECTOR
     with tabs[1]:
         st.subheader("🎨 Mechanical 2D Dieline Net Inspector")
         st.write("Flat dieline net layout showing panel geometry, fold creases, and exact mechanical defect hotspot pins.")
         dieline_svg = pipeline.get_dieline_html()
-        st.components.v1.html(dieline_svg, height=620, scrolling=False)
+        st.components.v1.html(dieline_svg, height=660, scrolling=False)
 
     # TAB 3: BEFORE VS AFTER VISUAL DIFF
     with tabs[2]:
@@ -483,6 +483,23 @@ else:
             with st.expander("6. Open Questions for the Design Agency", expanded=True):
                 for q in brief.open_questions:
                     st.markdown(f"- ❓ **{q.question}**")
+
+            st.markdown("---")
+            if st.button("💾 Save Brief Updates & Sync to 3D Model & Export Suite", type="primary", use_container_width=True):
+                for sec in brief.sections:
+                    for fld in sec.fields:
+                        if fld.label == "Brand":
+                            pipeline.fact_store.apply_user_answer("brand", fld.value, notes="Updated in Live Editor")
+                        elif fld.label == "Product Name":
+                            pipeline.fact_store.apply_user_answer("product_name", fld.value, notes="Updated in Live Editor")
+                        elif fld.label == "Declared Net Quantity":
+                            pipeline.fact_store.apply_user_answer("declared_net_quantity", fld.value, notes="Updated in Live Editor")
+                        elif fld.label == "UPC Barcode":
+                            pipeline.fact_store.apply_user_answer("upc_barcode", fld.value, notes="Updated in Live Editor")
+                        elif "Master Formulation Deck" in fld.label:
+                            pipeline.fact_store.apply_user_answer("ingredient_deck", fld.value, notes="Updated in Live Editor")
+                st.success("✅ Changes saved! 3D Carton Model and Handover Suite synchronized.")
+                st.rerun()
 
     # TAB 7: GLOBAL MARKET JURISDICTIONS
     with tabs[6]:

@@ -168,6 +168,12 @@ class BriefForgePipeline:
         self.fact_store.answer_question(question_id, answer)
         self.fact_store.apply_user_answer(field=question_id, value=answer, notes="Confirmed by Brand Manager")
         
+        # Mark related issues as resolved
+        for q in self.fact_store.questions:
+            if q.question_id == question_id:
+                for issue_id in q.related_issues:
+                    self.fact_store.resolve_issue(issue_id, f"Resolved by user decision: {answer[:80]}")
+        
         # Re-convene council with updated answers
         self._council_verdicts = self.council.convene_council(
             facts=self.fact_store.get_unified_facts(),
@@ -219,10 +225,12 @@ class BriefForgePipeline:
         )
 
     def get_dieline_html(self) -> str:
-        return render_interactive_dieline(self.fact_store.issues)
+        unified = self.fact_store.get_unified_facts()
+        return render_interactive_dieline(self.fact_store.issues, facts=unified)
 
-    def get_3d_carton_html(self) -> str:
-        return render_3d_carton_html()
+    def get_3d_carton_html(self, initial_mode: str = "remediated") -> str:
+        unified = self.fact_store.get_unified_facts()
+        return render_3d_carton_html(facts=unified, initial_mode=initial_mode)
 
     def get_diff_matrix(self) -> List[Dict[str, str]]:
         return get_packaging_diff_matrix()
