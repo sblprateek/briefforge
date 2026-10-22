@@ -528,6 +528,7 @@ else:
 
         brief = st.session_state.brief
         if brief:
+            clean_b = (brief.metadata.get('brand') or 'Esko').replace(' ', '_').replace('/', '_')
             md_content = pipeline.export(brief, fmt="markdown")
             html_content = pipeline.export(brief, fmt="html")
             json_content = pipeline.export(brief, fmt="json")
@@ -538,35 +539,35 @@ else:
             c1.download_button(
                 "📥 Markdown (.md)",
                 data=md_content,
-                file_name="Esko_Packaging_Design_Brief.md",
+                file_name=f"{clean_b}_Packaging_Design_Brief.md",
                 mime="text/markdown",
                 use_container_width=True
             )
             c2.download_button(
                 "🖨️ Print HTML (.html)",
                 data=html_content,
-                file_name="Esko_Packaging_Design_Brief_Print.html",
+                file_name=f"{clean_b}_Packaging_Design_Brief_Print.html",
                 mime="text/html",
                 use_container_width=True
             )
             c3.download_button(
                 "💾 Esko JSON (.json)",
                 data=json_content,
-                file_name="Esko_Brief_Traceability.json",
+                file_name=f"{clean_b}_Brief_Traceability.json",
                 mime="application/json",
                 use_container_width=True
             )
             c4.download_button(
                 "📄 Word (.docx)",
                 data=docx_bytes,
-                file_name="Esko_Packaging_Design_Brief.docx",
+                file_name=f"{clean_b}_Packaging_Design_Brief.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 use_container_width=True
             )
             c5.download_button(
                 "⚙️ Esko XML (.xml)",
                 data=xml_content,
-                file_name="Esko_Job_Ticket.xml",
+                file_name=f"{clean_b}_Job_Ticket.xml",
                 mime="application/xml",
                 use_container_width=True
             )

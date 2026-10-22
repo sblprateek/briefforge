@@ -233,7 +233,8 @@ class BriefForgePipeline:
         return render_3d_carton_html(facts=unified, initial_mode=initial_mode)
 
     def get_diff_matrix(self) -> List[Dict[str, str]]:
-        return get_packaging_diff_matrix()
+        unified = self.fact_store.get_unified_facts()
+        return get_packaging_diff_matrix(issues=self.fact_store.issues, facts=unified)
 
     def get_jurisdiction_guide(self, market: str = "US") -> Dict[str, Any]:
         return compare_jurisdictions(market)

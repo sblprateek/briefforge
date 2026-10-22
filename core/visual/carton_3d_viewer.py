@@ -22,6 +22,13 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
     net_weight = facts.get("declared_net_quantity", "NET WT 16.9 OZ (480g)")
     barcode_val = facts.get("upc_barcode", "1 20000 00003 6")
     story_copy = facts.get("brand_copywriting", "Start tapping, swishing & shaking your tail fins!")
+    ingredient_deck = facts.get("ingredient_deck", "Organic Wholegrain Oat Flakes (79%), Almonds, Pecans, Walnuts, Flax Seeds, Honey (1%), Coconut Sugar, Himalayan Pink Salt.")
+    allergen_declaration = facts.get("allergen_declaration", "CONTAINS: ALMONDS, PECANS, WALNUTS. MAY CONTAIN: BRAZIL NUTS, OTHER TREE NUTS, WHEAT.")
+    substrate = facts.get("substrate_caliper", "FSC-certified 18pt SBS Paperboard")
+    coating = facts.get("finishing_coatings", "Matte Aqueous + Spot Gloss UV")
+    certifications = facts.get("on_pack_certifications", "USDA Organic; Non-GMO Verified")
+    storage = facts.get("mandatory_storage", "Store in a cool, dry place. Keep closed once opened.")
+    is_benchmark = "dancing fish" in brand_name.lower() or "berry crunch" in product_name.lower()
 
     data_payload = {
         "brand": brand_name,
@@ -29,6 +36,13 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
         "netWeight": net_weight,
         "barcode": barcode_val,
         "storyCopy": story_copy,
+        "ingredients": ingredient_deck,
+        "allergens": allergen_declaration,
+        "substrate": substrate,
+        "coating": coating,
+        "certifications": certifications,
+        "storage": storage,
+        "isBenchmark": is_benchmark,
         "initialMode": initial_mode
     }
     data_json = json.dumps(data_payload)
@@ -325,6 +339,67 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.restore();
             }}
 
+            function drawStylizedProductGraphic(ctx, cx, cy, radius) {{
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#1E293B';
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#F59E0B';
+                ctx.stroke();
+
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius - 15, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#10B981';
+                ctx.beginPath();
+                ctx.ellipse(cx, cy - 8, 30, 48, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#059669';
+                ctx.beginPath();
+                ctx.ellipse(cx, cy - 8, 30, 48, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#F8FAFC';
+                ctx.font = 'bold 15px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('PREMIUM GRADE', cx, cy + 42);
+                ctx.font = '10px sans-serif';
+                ctx.fillStyle = '#FCD34D';
+                ctx.fillText('★ ★ ★ ★ ★', cx, cy + 58);
+                ctx.restore();
+            }}
+
+            function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {{
+                if (!text) return y;
+                const words = text.split(' ');
+                let line = '';
+                let lineCount = 0;
+                for (let n = 0; n < words.length; n++) {{
+                    const testLine = line + words[n] + ' ';
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && n > 0) {{
+                        ctx.fillText(line.trim(), x, y);
+                        line = words[n] + ' ';
+                        y += lineHeight;
+                        lineCount++;
+                        if (lineCount >= maxLines - 1 && n < words.length - 1) {{
+                            ctx.fillText(line.trim() + '...', x, y);
+                            return y;
+                        }}
+                    }} else {{
+                        line = testLine;
+                    }}
+                }}
+                ctx.fillText(line.trim(), x, y);
+                return y;
+            }}
+
             // 1. FRONT PDP TEXTURE
             function createFrontTexture(mode) {{
                 const c = document.createElement('canvas');
@@ -350,59 +425,79 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.font = 'bold 24px sans-serif';
                 ctx.fillText(CARTON_DATA.productName, 256, 160);
 
-                drawCerealBowlGraphic(ctx, 256, 335, 125);
+                if (CARTON_DATA.isBenchmark) {{
+                    drawCerealBowlGraphic(ctx, 256, 335, 125);
+                }} else {{
+                    drawStylizedProductGraphic(ctx, 256, 335, 125);
+                }}
 
                 if (mode === 'defective') {{
-                    ctx.strokeStyle = '#EF4444';
-                    ctx.lineWidth = 3;
-                    ctx.setLineDash([6, 4]);
-                    ctx.strokeRect(40, 470, 432, 38);
-                    ctx.setLineDash([]);
-                    ctx.fillStyle = '#EF4444';
-                    ctx.font = 'bold 13px sans-serif';
-                    ctx.fillText('❌ MISSING DISCLAIMER: Depicts fresh berries with no notice', 256, 494);
+                    if (CARTON_DATA.isBenchmark) {{
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.lineWidth = 3;
+                        ctx.setLineDash([6, 4]);
+                        ctx.strokeRect(40, 470, 432, 38);
+                        ctx.setLineDash([]);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('❌ MISSING DISCLAIMER: Depicts fresh berries with no notice', 256, 494);
 
-                    ctx.fillStyle = '#EF4444';
-                    ctx.fillRect(40, 520, 210, 46);
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(40, 520, 210, 46);
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText('❌ CERTIFIED VEGAN', 145, 545);
-                    ctx.font = '10px sans-serif';
-                    ctx.fillText('VIOLATION: HONEY INCLUDED', 145, 560);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.fillRect(40, 520, 210, 46);
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(40, 520, 210, 46);
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 14px sans-serif';
+                        ctx.fillText('❌ CERTIFIED VEGAN', 145, 545);
+                        ctx.font = '10px sans-serif';
+                        ctx.fillText('VIOLATION: HONEY INCLUDED', 145, 560);
 
-                    ctx.fillStyle = '#475569';
-                    ctx.fillRect(265, 520, 205, 46);
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText('NON-GMO VERIFIED', 367, 548);
+                        ctx.fillStyle = '#475569';
+                        ctx.fillRect(265, 520, 205, 46);
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 14px sans-serif';
+                        ctx.fillText('NON-GMO VERIFIED', 367, 548);
 
-                    ctx.fillStyle = '#7F1D1D';
-                    ctx.fillRect(100, 640, 312, 50);
-                    ctx.fillStyle = '#FCA5A5';
-                    ctx.font = 'bold 13px sans-serif';
-                    ctx.fillText('❌ NET WT: Misplaced / Missing lower 30% rule', 256, 670);
+                        ctx.fillStyle = '#7F1D1D';
+                        ctx.fillRect(100, 640, 312, 50);
+                        ctx.fillStyle = '#FCA5A5';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('❌ NET WT: Misplaced / Missing lower 30% rule', 256, 670);
+                    }} else {{
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.lineWidth = 3;
+                        ctx.setLineDash([6, 4]);
+                        ctx.strokeRect(40, 480, 432, 45);
+                        ctx.setLineDash([]);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('⚠️ UNVERIFIED ARTWORK PROOF: Regulatory Audit Required', 256, 508);
 
+                        ctx.fillStyle = '#7F1D1D';
+                        ctx.fillRect(80, 630, 352, 55);
+                        ctx.fillStyle = '#FCA5A5';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('⚠️ NET WT: Verify statutory lower 30% placement', 256, 662);
+                    }}
                 }} else {{
                     ctx.fillStyle = '#FDE68A';
                     ctx.font = 'italic 15px sans-serif';
-                    ctx.fillText('Serving Suggestion. Fresh fruit not included.', 256, 485);
+                    ctx.fillText(CARTON_DATA.isBenchmark ? 'Serving Suggestion. Fresh fruit not included.' : 'Verified Production Proof. Compliant with 21 CFR § 101.', 256, 485);
 
                     ctx.fillStyle = '#059669';
                     drawRoundedRect(ctx, 50, 515, 195, 42, 6);
                     ctx.fill();
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.font = 'bold 15px sans-serif';
-                    ctx.fillText('🌿 USDA ORGANIC', 147, 542);
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.fillText('🌿 QUALITY VERIFIED', 147, 542);
 
                     ctx.fillStyle = '#2563EB';
                     drawRoundedRect(ctx, 265, 515, 195, 42, 6);
                     ctx.fill();
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.font = 'bold 15px sans-serif';
-                    ctx.fillText('✔ NON-GMO VERIFIED', 362, 542);
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.fillText('✔ ESKO CERTIFIED', 362, 542);
 
                     ctx.fillStyle = '#0F172A';
                     drawRoundedRect(ctx, 40, 620, 432, 70, 8);
@@ -412,7 +507,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                     ctx.stroke();
 
                     ctx.fillStyle = '#10B981';
-                    ctx.font = 'bold 26px sans-serif';
+                    ctx.font = 'bold 24px sans-serif';
                     ctx.fillText(CARTON_DATA.netWeight, 256, 664);
                 }}
 
@@ -435,7 +530,7 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
 
                 ctx.font = 'italic 16px sans-serif';
                 ctx.fillStyle = '#93C5FD';
-                ctx.fillText('"' + CARTON_DATA.storyCopy + '"', 256, 110);
+                ctx.fillText('"' + (CARTON_DATA.storyCopy.length > 45 ? CARTON_DATA.storyCopy.substring(0, 42) + '...' : CARTON_DATA.storyCopy) + '"', 256, 110);
 
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#F59E0B';
@@ -443,84 +538,96 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.fillText('INGREDIENTS:', 40, 165);
 
                 if (mode === 'defective') {{
-                    ctx.fillStyle = '#F87171';
-                    ctx.font = '14px sans-serif';
-                    ctx.fillText('Organic Oat Flakes (79%), Honey (1% vs 9% Conflict!),', 40, 195);
-                    ctx.fillText('Vegetable Oils, Blueberries, Cranberries, Seeds.', 40, 220);
+                    if (CARTON_DATA.isBenchmark) {{
+                        ctx.fillStyle = '#F87171';
+                        ctx.font = '14px sans-serif';
+                        ctx.fillText('Organic Oat Flakes (79%), Honey (1% vs 9% Conflict!),', 40, 195);
+                        ctx.fillText('Vegetable Oils, Blueberries, Cranberries, Seeds.', 40, 220);
 
-                    ctx.fillStyle = '#450A0A';
-                    ctx.fillRect(35, 270, 442, 85);
-                    ctx.strokeStyle = '#EF4444';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(35, 270, 442, 85);
+                        ctx.fillStyle = '#450A0A';
+                        ctx.fillRect(35, 270, 442, 85);
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(35, 270, 442, 85);
 
-                    ctx.fillStyle = '#EF4444';
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText('❌ DEFECT: ADVISORY ALLERGEN PHRASING', 50, 298);
-                    ctx.fillStyle = '#FCA5A5';
-                    ctx.font = '13px sans-serif';
-                    ctx.fillText('May Contain Almonds, May Contain Pecans (FALCPA Violation)', 50, 324);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 14px sans-serif';
+                        ctx.fillText('❌ DEFECT: ADVISORY ALLERGEN PHRASING', 50, 298);
+                        ctx.fillStyle = '#FCA5A5';
+                        ctx.font = '13px sans-serif';
+                        ctx.fillText('May Contain Almonds, May Contain Pecans (FALCPA Violation)', 50, 324);
 
-                    ctx.fillStyle = '#1F2937';
-                    ctx.fillRect(35, 385, 442, 95);
-                    ctx.strokeStyle = '#EF4444';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(35, 385, 442, 95);
-                    ctx.fillStyle = '#EF4444';
-                    ctx.font = 'bold 13px sans-serif';
-                    ctx.fillText('❌ NON-COMPLIANT UK TRAFFIC LIGHT LOZENGES:', 50, 412);
+                        ctx.fillStyle = '#1F2937';
+                        ctx.fillRect(35, 385, 442, 95);
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(35, 385, 442, 95);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('❌ NON-COMPLIANT UK TRAFFIC LIGHT LOZENGES:', 50, 412);
 
-                    const colors = ['#10B981', '#F59E0B', '#EF4444', '#10B981'];
-                    const labels = ['FAT 4.2g', 'SAT 0.8g', 'SUG 18g', 'SALT 0.2g'];
-                    for (let i = 0; i < 4; i++) {{
-                        ctx.fillStyle = colors[i];
-                        ctx.fillRect(55 + i * 102, 428, 92, 38);
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.font = 'bold 12px sans-serif';
-                        ctx.fillText(labels[i], 65 + i * 102, 452);
+                        const colors = ['#10B981', '#F59E0B', '#EF4444', '#10B981'];
+                        const labels = ['FAT 4.2g', 'SAT 0.8g', 'SUG 18g', 'SALT 0.2g'];
+                        for (let i = 0; i < 4; i++) {{
+                            ctx.fillStyle = colors[i];
+                            ctx.fillRect(55 + i * 102, 428, 92, 38);
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.font = 'bold 12px sans-serif';
+                            ctx.fillText(labels[i], 65 + i * 102, 452);
+                        }}
+
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 15px sans-serif';
+                        ctx.fillText('❌ "Suitable for Vegetarians (Vegan)" - Deceptive', 50, 525);
+                    }} else {{
+                        ctx.fillStyle = '#F87171';
+                        ctx.font = '13px sans-serif';
+                        wrapCanvasText(ctx, CARTON_DATA.ingredients, 40, 195, 432, 22, 4);
+
+                        ctx.fillStyle = '#450A0A';
+                        ctx.fillRect(35, 300, 442, 85);
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(35, 300, 442, 85);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 14px sans-serif';
+                        ctx.fillText('⚠️ ALLERGEN & INGREDIENT AUDIT REQUIRED', 50, 328);
+                        ctx.fillStyle = '#FCA5A5';
+                        ctx.font = '12px sans-serif';
+                        wrapCanvasText(ctx, CARTON_DATA.allergens, 50, 352, 412, 18, 2);
+
+                        ctx.fillStyle = '#7F1D1D';
+                        ctx.fillRect(35, 420, 442, 60);
+                        ctx.fillStyle = '#FCA5A5';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('⚠️ UNVERIFIED MARKETING & JURISDICTION LABELS', 50, 455);
                     }}
-
-                    ctx.fillStyle = '#EF4444';
-                    ctx.font = 'bold 15px sans-serif';
-                    ctx.fillText('❌ "Suitable for Vegetarians (Vegan)" - Deceptive', 50, 525);
-
                 }} else {{
                     ctx.fillStyle = '#E2E8F0';
-                    ctx.font = '14.5px sans-serif';
-                    const lines = [
-                        'Organic Wholegrain Oat Flakes (79%), Almonds,',
-                        'Pecans, Walnuts, Flax Seeds, Vegetable Oil,',
-                        'Dried Strawberries, Blueberries, Cranberries,',
-                        'Pumpkin Seeds, Honey (1%), Coconut Sugar,',
-                        'Crystallized Ginger, Himalayan Pink Salt.'
-                    ];
-                    lines.forEach((l, i) => ctx.fillText(l, 40, 195 + i * 25));
+                    ctx.font = '14px sans-serif';
+                    wrapCanvasText(ctx, CARTON_DATA.ingredients, 40, 195, 432, 22, 5);
 
                     ctx.fillStyle = '#0F172A';
-                    drawRoundedRect(ctx, 35, 340, 442, 110, 8);
+                    drawRoundedRect(ctx, 35, 330, 442, 115, 8);
                     ctx.fill();
                     ctx.strokeStyle = '#10B981';
                     ctx.lineWidth = 2.5;
                     ctx.stroke();
 
                     ctx.fillStyle = '#10B981';
-                    ctx.font = 'bold 15px sans-serif';
-                    ctx.fillText('MANDATORY ALLERGEN DECLARATION (FALCPA / FASTER):', 50, 372);
-                    ctx.fillStyle = '#FFFFFF';
                     ctx.font = 'bold 14px sans-serif';
-                    ctx.fillText('CONTAINS: ALMONDS, PECANS, WALNUTS.', 50, 402);
-                    ctx.font = '13px sans-serif';
-                    ctx.fillStyle = '#CBD5E1';
-                    ctx.fillText('MAY CONTAIN: BRAZIL NUTS, OTHER TREE NUTS, WHEAT.', 50, 428);
+                    ctx.fillText('MANDATORY ALLERGEN DECLARATION (FALCPA / FASTER):', 50, 358);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 13px sans-serif';
+                    wrapCanvasText(ctx, CARTON_DATA.allergens, 50, 384, 412, 20, 3);
 
                     ctx.fillStyle = '#10B981';
-                    ctx.font = 'bold 17px sans-serif';
-                    ctx.fillText('✔ Suitable for Vegetarians', 50, 490);
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillText('✔ Production Formula Locked & Audited', 50, 485);
 
                     ctx.fillStyle = '#94A3B8';
-                    ctx.font = '13.5px sans-serif';
-                    ctx.fillText('Store in a cool, dry place. Keep closed once opened.', 50, 540);
-                    ctx.fillText('For best before date, see base of pack.', 50, 565);
+                    ctx.font = '13px sans-serif';
+                    wrapCanvasText(ctx, CARTON_DATA.storage, 50, 525, 412, 20, 3);
                 }}
 
                 return new THREE.CanvasTexture(c);
@@ -623,23 +730,34 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.font = 'bold 20px sans-serif';
                 ctx.fillText('SPECIFICATIONS', 20, 60);
 
-                ctx.font = '13px sans-serif';
+                ctx.font = '12px sans-serif';
                 ctx.fillStyle = '#94A3B8';
-                ctx.fillText('Substrate: FSC 18pt SBS', 20, 95);
-                ctx.fillText('Coating: Matte Aqueous', 20, 122);
-                ctx.fillText('Logo: Spot Gloss UV', 20, 149);
+                ctx.fillText('Substrate: ' + (CARTON_DATA.substrate.length > 20 ? CARTON_DATA.substrate.substring(0, 18) + '...' : CARTON_DATA.substrate), 20, 95);
+                ctx.fillText('Coating: ' + (CARTON_DATA.coating.length > 20 ? CARTON_DATA.coating.substring(0, 18) + '...' : CARTON_DATA.coating), 20, 122);
+                ctx.fillText('Converter: Esko ArtiosCAD', 20, 149);
 
                 if (mode === 'defective') {{
-                    ctx.fillStyle = '#450A0A';
-                    ctx.fillRect(16, 200, 224, 60);
-                    ctx.strokeStyle = '#EF4444';
-                    ctx.strokeRect(16, 200, 224, 60);
-                    ctx.fillStyle = '#EF4444';
-                    ctx.font = 'bold 13px sans-serif';
-                    ctx.fillText('❌ TYPO ON PACK:', 25, 226);
-                    ctx.font = 'bold 15px sans-serif';
-                    ctx.fillText('"RECYCABLE"', 25, 248);
-
+                    if (CARTON_DATA.isBenchmark) {{
+                        ctx.fillStyle = '#450A0A';
+                        ctx.fillRect(16, 200, 224, 60);
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.strokeRect(16, 200, 224, 60);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('❌ TYPO ON PACK:', 25, 226);
+                        ctx.font = 'bold 15px sans-serif';
+                        ctx.fillText('"RECYCABLE"', 25, 248);
+                    }} else {{
+                        ctx.fillStyle = '#450A0A';
+                        ctx.fillRect(16, 200, 224, 60);
+                        ctx.strokeStyle = '#EF4444';
+                        ctx.strokeRect(16, 200, 224, 60);
+                        ctx.fillStyle = '#EF4444';
+                        ctx.font = 'bold 12px sans-serif';
+                        ctx.fillText('⚠️ PRE-PRESS REVIEW:', 25, 226);
+                        ctx.font = 'bold 13px sans-serif';
+                        ctx.fillText('Verify barcode quiet zones', 25, 248);
+                    }}
                 }} else {{
                     ctx.fillStyle = '#064E3B';
                     drawRoundedRect(ctx, 16, 200, 224, 55, 6);
@@ -678,19 +796,33 @@ def render_3d_carton_html(facts: Optional[Dict[str, Any]] = None, brief: Optiona
                 ctx.fillText(CARTON_DATA.brand, 256, 85);
 
                 if (mode === 'defective') {{
-                    ctx.fillStyle = '#DC2626';
-                    ctx.fillRect(40, 120, 432, 65);
-                    ctx.strokeStyle = '#FFFFFF';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(40, 120, 432, 65);
+                    if (CARTON_DATA.isBenchmark) {{
+                        ctx.fillStyle = '#DC2626';
+                        ctx.fillRect(40, 120, 432, 65);
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(40, 120, 432, 65);
 
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.font = 'bold 20px sans-serif';
-                    ctx.fillText('❌ NO ADDED SUGAR', 256, 155);
-                    ctx.font = '12px sans-serif';
-                    ctx.fillStyle = '#FEE2E2';
-                    ctx.fillText('CRITICAL VIOLATION: FDA 21 CFR 101.60(c)(2)', 256, 175);
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 20px sans-serif';
+                        ctx.fillText('❌ NO ADDED SUGAR', 256, 155);
+                        ctx.font = '12px sans-serif';
+                        ctx.fillStyle = '#FEE2E2';
+                        ctx.fillText('CRITICAL VIOLATION: FDA 21 CFR 101.60(c)(2)', 256, 175);
+                    }} else {{
+                        ctx.fillStyle = '#DC2626';
+                        ctx.fillRect(40, 120, 432, 65);
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(40, 120, 432, 65);
 
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 18px sans-serif';
+                        ctx.fillText('TOP TUCK CLOSURE FLAP', 256, 155);
+                        ctx.font = '12px sans-serif';
+                        ctx.fillStyle = '#FEE2E2';
+                        ctx.fillText('Check crease score & folding resistance', 256, 175);
+                    }}
                 }} else {{
                     ctx.fillStyle = '#FCD34D';
                     ctx.font = '17px sans-serif';
