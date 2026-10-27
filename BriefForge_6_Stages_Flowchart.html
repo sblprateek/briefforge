@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BriefForge — 6-Stage Autonomous Packaging Architecture</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #0B0F19; color: #F1F5F9; padding: 30px 20px; line-height: 1.5; }
+        .header { text-align: center; margin-bottom: 35px; }
+        .badge { display: inline-block; background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.4); padding: 4px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        h1 { font-size: 32px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; }
+        p.subtitle { color: #94A3B8; font-size: 16px; margin-top: 6px; }
+        
+        .pipeline-container { display: flex; flex-direction: column; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; }
+        
+        .stage-row { display: grid; grid-template-columns: 80px 1fr; background: #131B2E; border: 1px solid #1E293B; border-radius: 14px; padding: 22px 24px; position: relative; transition: all 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .stage-row:hover { border-color: #3B82F6; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2); }
+        
+        .stage-number { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        .num-circle { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #FFF; box-shadow: 0 0 15px rgba(0,0,0,0.4); }
+        
+        .c-stage1 { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
+        .c-stage2 { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+        .c-stage3 { background: linear-gradient(135deg, #EC4899, #BE185D); }
+        .c-stage4 { background: linear-gradient(135deg, #F59E0B, #B45309); }
+        .c-stage5 { background: linear-gradient(135deg, #06B6D4, #0E7490); }
+        .c-stage6 { background: linear-gradient(135deg, #10B981, #047857); }
+
+        .stage-content { padding-left: 10px; }
+        .stage-title-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; }
+        .stage-title { font-size: 20px; font-weight: 700; color: #FFFFFF; }
+        .engine-tag { font-size: 12px; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 6px; color: #CBD5E1; font-family: monospace; }
+        
+        .grid-3col { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 16px; margin-top: 12px; }
+        .col-box { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px 14px; }
+        .col-box h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #94A3B8; margin-bottom: 6px; }
+        .col-box ul { list-style: none; font-size: 13px; color: #E2E8F0; }
+        .col-box ul li { margin-bottom: 4px; display: flex; align-items: flex-start; gap: 6px; }
+        .col-box ul li::before { content: "•"; color: #60A5FA; font-weight: bold; }
+        
+        .arrow-connector { text-align: center; color: #475569; font-size: 20px; margin: -6px 0; font-weight: bold; }
+        
+        .bottom-banner { max-width: 1200px; margin: 30px auto 0; background: linear-gradient(90deg, #1E1B4B, #0F172A); border: 1px solid #3B82F6; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .bottom-banner h3 { font-size: 18px; color: #FFF; margin-bottom: 4px; }
+        .bottom-banner p { font-size: 13px; color: #94A3B8; }
+        .btn-live { background: #2563EB; color: #FFF; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; transition: background 0.2s; }
+        .btn-live:hover { background: #1D4ED8; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="badge">Esko Hackathon Challenge Solution</div>
+        <h1>BriefForge 6-Stage Autonomous Packaging Pipeline</h1>
+        <p class="subtitle">From Raw Product Inputs to Agency-Ready Design Brief &amp; 3D WebGL Digital Twin in 60 Seconds</p>
+    </div>
+
+    <div class="pipeline-container">
+
+        <!-- STAGE 1 -->
+        <div class="stage-row">
+            <div class="stage-number">
+                <div class="num-circle c-stage1">1</div>
+            </div>
+            <div class="stage-content">
+                <div class="stage-title-wrap">
+                    <div class="stage-title">Document Ingestion &amp; Multimodal Parsing</div>
+                    <div class="engine-tag">Gemini 2.5 Vision + openpyxl + PyMuPDF</div>
+                </div>
+                <div class="grid-3col">
+                    <div class="col-box">
+                        <h4>📥 Inbound Files</h4>
+                        <ul>
+                            <li>Dieline Artwork PDFs</li>
+                            <li>Recipe/Formula Excel Sheets</li>
+                            <li>Brand Guidelines Word Docs</li>
+                            <li>Product Photos (JPG/PNG)</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>⚙️ What BriefForge Does</h4>
+                        <ul>
+                            <li>Extracts visual panel layouts without OCR drift</li>
+                            <li>Parses multi-tab Excel cells and formulas</li>
+                            <li>Extracts dieline dimensions (W x D x H)</li>
+                            <li>Zero-shot format recognition</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>📤 Stage Output</h4>
+                        <ul>
+                            <li>Normalized Document Streams</li>
+                            <li>Raw text, tables, &amp; graphics cache</li>
+                            <li>Spatial panel mapping coordinates</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-connector">▼</div>
+
+        <!-- STAGE 2 -->
+        <div class="stage-row">
+            <div class="stage-number">
+                <div class="num-circle c-stage2">2</div>
+            </div>
+            <div class="stage-content">
+                <div class="stage-title-wrap">
+                    <div class="stage-title">Knowledge Fusion &amp; Atomic FactStore</div>
+                    <div class="engine-tag">Deterministic Python FactStore + Coordinate Citations</div>
+                </div>
+                <div class="grid-3col">
+                    <div class="col-box">
+                        <h4>📥 Inbound Data</h4>
+                        <ul>
+                            <li>Fragmented text from multiple files</li>
+                            <li>Tabular nutrition facts</li>
+                            <li>Artwork text layers &amp; claims</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>⚙️ What BriefForge Does</h4>
+                        <ul>
+                            <li>Splits facts into atomic key-value entities</li>
+                            <li>Binds exact provenance (File, Page, Cell)</li>
+                            <li>Cross-references duplicate claims across files</li>
+                            <li>Builds central Packaging Knowledge Graph</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>📤 Stage Output</h4>
+                        <ul>
+                            <li>100% Traceable Atomic FactStore</li>
+                            <li>Cross-Reference Discrepancy Matrix</li>
+                            <li>Zero-Hallucination Verified Data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-connector">▼</div>
+
+        <!-- STAGE 3 -->
+        <div class="stage-row">
+            <div class="stage-number">
+                <div class="num-circle c-stage3">3</div>
+            </div>
+            <div class="stage-content">
+                <div class="stage-title-wrap">
+                    <div class="stage-title">Regulatory Audit &amp; The Packaging Council</div>
+                    <div class="engine-tag">4 Multi-Agent Personas + FDA 21 CFR / FALCPA Rules</div>
+                </div>
+                <div class="grid-3col">
+                    <div class="col-box">
+                        <h4>🏛️ The 4 Virtual Agents</h4>
+                        <ul>
+                            <li>⚖️ <strong>Food Lawyer</strong> (FDA / FALCPA)</li>
+                            <li>🖨️ <strong>Pre-Press Printer</strong> (Inks / Barcode)</li>
+                            <li>🎨 <strong>Creative Director</strong> (Brand Voice)</li>
+                            <li>🌿 <strong>Eco-Engineer</strong> (FSC / EPR / Recyclability)</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>⚙️ Rules Automatically Checked</h4>
+                        <ul>
+                            <li>FDA 21 CFR 101.60 (No Added Sugar claim)</li>
+                            <li>FTC Vegan Truth (Honey disqualifier)</li>
+                            <li>FALCPA Allergen bolding rules</li>
+                            <li>Barcode quiet zones &amp; print layer artifacts</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>📤 Stage Output</h4>
+                        <ul>
+                            <li>11-Point Mechanical Audit Checklist</li>
+                            <li>Defect Hotspots tagged with Severity</li>
+                            <li>Before-vs-After Remediation Matrix</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-connector">▼</div>
+
+        <!-- STAGE 4 -->
+        <div class="stage-row">
+            <div class="stage-number">
+                <div class="num-circle c-stage4">4</div>
+            </div>
+            <div class="stage-content">
+                <div class="stage-title-wrap">
+                    <div class="stage-title">Smart Q&amp;A Resolution Center</div>
+                    <div class="engine-tag">Human-In-The-Loop Decision Architecture</div>
+                </div>
+                <div class="grid-3col">
+                    <div class="col-box">
+                        <h4>📥 Inbound Conflicts</h4>
+                        <ul>
+                            <li>Honey: 1% in PDF vs 9% in Excel</li>
+                            <li>Serving count vs box weight math</li>
+                            <li>Converter print press trapping specs</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>⚙️ What BriefForge Does</h4>
+                        <ul>
+                            <li>Refuses to hallucinate or guess</li>
+                            <li>Synthesizes prioritized multiple-choice questions</li>
+                            <li>Highlights <strong>Recommended Compliant Choice</strong></li>
+                            <li>Allows Brand Manager 1-click confirmation</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>📤 Stage Output</h4>
+                        <ul>
+                            <li>Resolved Brand Owner Directives</li>
+                            <li>FactStore instantly synchronized</li>
+                            <li>Immutable audit decision log</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-connector">▼</div>
+
+        <!-- STAGE 5 -->
+        <div class="stage-row">
+            <div class="stage-number">
+                <div class="num-circle c-stage5">5</div>
+            </div>
+            <div class="stage-content">
+                <div class="stage-title-wrap">
+                    <div class="stage-title">3D Digital Twin &amp; 2D Dieline Net Synthesis</div>
+                    <div class="engine-tag">Three.js WebGL (Browser Native) + Vector SVG Engine</div>
+                </div>
+                <div class="grid-3col">
+                    <div class="col-box">
+                        <h4>📦 3D Simulator</h4>
+                        <ul>
+                            <li>Full 360° interactive carton rotation</li>
+                            <li>Panel focus: PDP, Nutrition, Flaps</li>
+                            <li>Realistic folding crease simulation</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>🔴 Red vs 🟢 Green Mode</h4>
+                        <ul>
+                            <li><strong>Red Defective Mode</strong>: Highlights missing barcode, illegal vegan badge, &amp; typos in red</li>
+                            <li><strong>Green Remediated Mode</strong>: Displays clean, verified, production-ready artwork</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>📐 2D Dieline Inspector</h4>
+                        <ul>
+                            <li>Flat dieline net with cut &amp; crease lines</li>
+                            <li>Bleed margins &amp; glue tabs visualized</li>
+                            <li>Direct CAD inspection in the browser</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="arrow-connector">▼</div>
+
+        <!-- STAGE 6 -->
+        <div class="stage-row">
+            <div class="stage-number">
+                <div class="num-circle c-stage6">6</div>
+            </div>
+            <div class="stage-content">
+                <div class="stage-title-wrap">
+                    <div class="stage-title">Master Brief Synthesis &amp; Multi-Format Export</div>
+                    <div class="engine-tag">Jinja2 Template Synthesis + Esko WebCenter Ready JSON</div>
+                </div>
+                <div class="grid-3col">
+                    <div class="col-box">
+                        <h4>📝 Brief Content</h4>
+                        <ul>
+                            <li>Project Objectives &amp; Brand Story</li>
+                            <li>Complete Packaging Specifications</li>
+                            <li>11-Point Pre-Press Checklist</li>
+                            <li>Converter Technical Inquiries</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>🔍 100% Traceability</h4>
+                        <ul>
+                            <li>Every single specification item carries an audit badge linking directly to the source file &amp; cell</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>📤 5 Export Formats</h4>
+                        <ul>
+                            <li>📄 Markdown (.md)</li>
+                            <li>🖨️ Print-Ready HTML (.html)</li>
+                            <li>📊 JSON (for Esko WebCenter)</li>
+                            <li>📑 Word Document (.docx)</li>
+                            <li>📁 CSV FactStore Export</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-banner">
+        <div>
+            <h3>Live Demo Studio Active</h3>
+            <p>Ready to inspect the Dancing Fish Granola benchmark or upload your own packaging files.</p>
+        </div>
+        <div>
+            <a href="https://briefforge.streamlit.app/" target="_blank" class="btn-live">Launch Live App ↗</a>
+        </div>
+    </div>
+
+</body>
+</html>
